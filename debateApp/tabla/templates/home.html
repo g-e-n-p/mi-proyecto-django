@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% block title %}Torneos{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h3>Torneos</h3>
+  <a class="btn btn-primary" href="{% url 'torneo_nuevo' %}">Nuevo torneo</a>
+</div>
+<table class="table table-striped">
+  <thead><tr><th>Nombre</th><th>Responsable</th><th>Rondas</th><th>Clasificados</th><th>Acciones</th></tr></thead>
+  <tbody>
+    {% for t in torneos %}
+      <tr>
+        <td>{{ t.nombre }}</td>
+        <td>{{ t.responsable }}</td>
+        <td>{{ t.n_rondas }}</td>
+        <td>{{ t.n_clasificados }}</td>
+        <td class="d-flex gap-2">
+          <a class="btn btn-sm btn-secondary" href="{% url 'torneo_tabla' t.id %}">Tabla</a>
+          <a class="btn btn-sm btn-outline-secondary" href="{% url 'equipos_list' t.id %}">Equipos</a>
+          <a class="btn btn-sm btn-outline-primary" href="{% url 'torneo_editar' t.id %}">Editar</a>
+          <form method="post" action="{% url 'torneo_eliminar' t.id %}">{% csrf_token %}
+            <button class="btn btn-sm btn-outline-danger">Eliminar</button>
+          </form>
+        </td>
+      </tr>
+    {% empty %}
+      <tr><td colspan="5">Sin torneos aún.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+{% block content %}
+<h3>Confirmar eliminación</h3>
+<p>¿Seguro que deseas eliminar <strong>{{ obj }}</strong>?</p>
+<form method="post">{% csrf_token %}
+  <button class="btn btn-danger">Eliminar</button>
+  {% if volver_kwargs %}
+    <a class="btn btn-outline-secondary" href="{% url volver **volver_kwargs %}">Cancelar</a>
+  {% else %}
+    <a class="btn btn-outline-secondary" href="{% url volver %}">Cancelar</a>
+  {% endif %}
+</form>
+{% endblock %}

@@ -1,0 +1,9 @@
+{% extends 'base.html' %}
+{% block content %}
+<h3>Equipo – {{ torneo.nombre }}</h3>
+<form method="post">{% csrf_token %}
+  {% for f in form %}<div class="mb-3"><label class="form-label">{{ f.label }}</label> {{ f }}</div>{% endfor %}
+  <button class="btn btn-primary">Guardar</button>
+  <a class="btn btn-outline-secondary" href="{% url 'equipos_list' torneo.id %}">Volver</a>
+</form>
+{% endblock %}

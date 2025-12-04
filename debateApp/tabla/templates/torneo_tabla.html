@@ -1,0 +1,87 @@
+{% extends 'base.html' %}
+{% block content %}
+<h3>Tabla – {{ torneo.nombre }}</h3>
+
+{% if torneo.cerrado and torneo.ganador %}
+  <div class="alert alert-success">
+    🏆 <strong>Campeón:</strong> {{ torneo.ganador.nombre }}
+  </div>
+{% endif %}
+
+<div class="mb-3 d-flex gap-2">
+  <a class="btn btn-primary btn-sm" href="{% url 'torneo_continuar' torneo.id %}">Ir a rondas</a>
+  <a class="btn btn-outline-secondary btn-sm" href="{% url 'equipos_list' torneo.id %}">Equipos</a>
+</div>
+
+<table class="table table-striped">
+  <thead><tr><th>#</th><th>Equipo</th><th>Puntos</th><th>Speakers (tot)</th><th>Speakers (prom)</th><th>Swing</th></tr></thead>
+  <tbody>
+    {% for e in equipos %}
+      <tr>
+        <td>{{ forloop.counter }}</td>
+        <td>{{ e.nombre }}</td>
+        <td>{{ e.puntos }}</td>
+        <td>{{ e.speakers_total }}</td>
+        <td>{{ e.speakers_prom|floatformat:2 }}</td>
+        <td>{% if e.es_swing %}Sí{% else %}No{% endif %}</td>
+      </tr>
+    {% empty %}
+      <tr><td colspan="6">No hay equipos.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<hr>
+<h5>Lugar del torneo</h5>
+<p id="texto-lugar">
+  {% if torneo.lugar_nombre %}
+    {{ torneo.lugar_nombre }}
+  {% else %}
+    No hay ubicación registrada para este torneo.
+  {% endif %}
+</p>
+<div id="mapa-torneo" style="height: 300px;" class="mb-3"></div>
+
+{% endblock %}
+
+{% block scripts %}
+  {{ block.super }}
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+    crossorigin=""
+  />
+  <script
+    src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+    crossorigin="">
+  </script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const mapDiv = document.getElementById('mapa-torneo');
+      if (!mapDiv) return;
+
+      fetch('{% url "torneo_ubicacion_api" torneo.id %}')
+        .then(r => r.json())
+        .then(data => {
+          if (!data.lat || !data.lng) {
+            mapDiv.innerHTML = 'No hay coordenadas registradas para este torneo.';
+            return;
+          }
+          const map = L.map(mapDiv).setView([data.lat, data.lng], 15);
+          L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '&copy; OpenStreetMap',
+          }).addTo(map);
+          L.marker([data.lat, data.lng]).addTo(map)
+            .bindPopup(data.ubicacion_nombre || data.nombre)
+            .openPopup();
+        })
+        .catch(err => {
+          console.error(err);
+          mapDiv.innerHTML = 'No se pudo cargar el mapa.';
+        });
+    });
+  </script>
+{% endblock %}

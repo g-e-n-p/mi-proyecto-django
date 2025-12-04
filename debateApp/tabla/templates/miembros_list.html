@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% block content %}
+<h3>Miembros – {{ equipo.nombre }}</h3>
+<div class="mb-3">
+  <a class="btn btn-primary btn-sm" href="{% url 'miembro_nuevo' equipo.id %}">Nuevo miembro</a>
+</div>
+<table class="table table-striped">
+  <thead><tr><th>Nombre</th><th>Acciones</th></tr></thead>
+  <tbody>
+    {% for m in miembros %}
+      <tr>
+        <td>{{ m.nombre }}</td>
+        <td class="d-flex gap-2">
+          <a class="btn btn-sm btn-outline-primary" href="{% url 'miembro_editar' m.id %}">Editar</a>
+          <form method="post" action="{% url 'miembro_eliminar' m.id %}">{% csrf_token %}
+            <button class="btn btn-sm btn-outline-danger">Eliminar</button>
+          </form>
+        </td>
+      </tr>
+    {% empty %}
+      <tr><td colspan="2">Sin miembros.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+<a class="btn btn-outline-secondary" href="{% url 'equipos_list' equipo.torneo_id %}">Volver</a>
+{% endblock %}

@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% block content %}
+<h3>Equipos (Paso 2) – {{ torneo.nombre }}</h3>
+<p class="text-muted">Ingresa {{ torneo.n_equipos }} equipos y sus 2 integrantes.</p>
+<form method="post" action="{% url 'torneo_equipos' torneo.id %}">
+  {% csrf_token %}
+  {{ formset.management_form }}
+  <div class="row">
+    {% for f in formset %}
+      <div class="col-md-6">
+        <div class="card mb-3"><div class="card-body">
+          <div class="mb-2">{{ f.nombre_equipo.label_tag }} {{ f.nombre_equipo }}</div>
+          <div class="mb-2">{{ f.integrante1.label_tag }} {{ f.integrante1 }}</div>
+          <div class="mb-2">{{ f.integrante2.label_tag }} {{ f.integrante2 }}</div>
+        </div></div>
+      </div>
+    {% endfor %}
+  </div>
+  <button class="btn btn-primary">Guardar y crear Ronda 1</button>
+  <a class="btn btn-outline-secondary" href="{% url 'home' %}">Cancelar</a>
+</form>
+{% endblock %}

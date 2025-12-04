@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% block content %}
+<h3>{{ torneo.nombre }} – Ronda {{ ronda.numero }}</h3>
+<a class="btn btn-outline-secondary btn-sm mb-3" href="{% url 'torneo_tabla' torneo.id %}">Ver tabla</a>
+<form method="post">
+  {% csrf_token %}
+  {% for sala, ses in paquetes %}
+    <div class="card mb-3">
+      <div class="card-header"><strong>{{ sala.nombre }}</strong></div>
+      <div class="card-body">
+        <div class="table-responsive">
+          <table class="table table-sm">
+            <thead><tr><th>Posición</th><th>Equipo</th><th>Ranking (1-4)</th><th>Orador 1</th><th>Orador 2</th></tr></thead>
+            <tbody>
+              {% for se in ses %}
+                <tr>
+                  <td>{{ se.posicion }}</td>
+                  <td>{{ se.equipo.nombre }}</td>
+                  <td><input type="number" name="s{{ sala.id }}_{{ forloop.counter0 }}_ranking" min="1" max="4" class="form-control form-control-sm" required></td>
+                  <td><input type="number" name="s{{ sala.id }}_{{ forloop.counter0 }}_orador1" min="50" max="100" class="form-control form-control-sm" value="75" required></td>
+                  <td><input type="number" name="s{{ sala.id }}_{{ forloop.counter0 }}_orador2" min="50" max="100" class="form-control form-control-sm" value="75" required></td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+          <p class="text-muted mb-0">Los puntos de equipo se calculan automáticamente: 1.º→3, 2.º→2, 3.º→1, 4.º→0.</p>
+        </div>
+      </div>
+    </div>
+  {% endfor %}
+  <button class="btn btn-success">Guardar resultados y continuar</button>
+</form>
+{% endblock %}

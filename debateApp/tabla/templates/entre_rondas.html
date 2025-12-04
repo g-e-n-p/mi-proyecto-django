@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% block content %}
+<h3>{{ torneo.nombre }} – Ranking tras ronda {{ num }}</h3>
+<table class="table table-striped">
+  <thead><tr><th>#</th><th>Equipo</th><th>Puntos</th><th>Speakers (tot)</th><th>Speakers (prom)</th><th>Swing</th></tr></thead>
+  <tbody>
+    {% for e in equipos %}
+      <tr>
+        <td>{{ forloop.counter }}</td>
+        <td>{{ e.nombre }}</td>
+        <td>{{ e.puntos }}</td>
+        <td>{{ e.speakers_total }}</td>
+        <td>{{ e.speakers_prom|floatformat:2 }}</td>
+        <td>{% if e.es_swing %}Sí{% else %}No{% endif %}</td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>
+<form method="post">{% csrf_token %}
+  <button class="btn btn-success">Lanzar siguiente ronda</button>
+  <a class="btn btn-outline-secondary" href="{% url 'torneo_tabla' torneo.id %}">Ver tabla completa</a>
+</form>
+{% endblock %}

@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+{% block title %}Torneo{% endblock %}
+{% block content %}
+<h3>{% if form.instance.pk %}Editar torneo{% else %}Crear torneo (Paso 1){% endif %}</h3>
+<form method="post" class="mt-3">
+  {% csrf_token %}
+  <div class="row">
+    {% for field in form %}
+      <div class="col-md-6 mb-3">
+        <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+        {{ field }}
+        {% if field.errors %}<div class="text-danger small mt-1">{{ field.errors }}</div>{% endif %}
+      </div>
+    {% endfor %}
+  </div>
+
+  <div class="mb-3">
+    <label class="form-label">Ubicación en el mapa</label>
+    <div id="mapa-selector" style="height: 300px;"></div>
+    <div class="form-text">
+      Haz clic en el mapa para seleccionar dónde se realizará el torneo.
+    </div>
+  </div>
+
+  <button class="btn btn-primary">
+    {% if form.instance.pk %}Guardar{% else %}Guardar y continuar{% endif %}
+  </button>
+  <a class="btn btn-outline-secondary" href="{% url 'home' %}">Volver</a>
+</form>
+{% endblock %}
+
+{% block scripts %}
+  {{ block.super }}
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+    crossorigin=""
+  />
+  <script
+    src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+    crossorigin="">
+  </script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const latInput = document.getElementById('id_lugar_lat');
+      const lngInput = document.getElementById('id_lugar_lng');
+      const mapDiv = document.getElementById('mapa-selector');
+      if (!latInput || !lngInput || !mapDiv) return;
+
+      const defaultLat = parseFloat(latInput.value) || -33.4489;  // Santiago
+      const defaultLng = parseFloat(lngInput.value) || -70.6693;
+
+      const map = L.map(mapDiv).setView([defaultLat, defaultLng], 12);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '&copy; OpenStreetMap',
+      }).addTo(map);
+
+      let marker = null;
+      function setMarker(lat, lng) {
+        if (marker) {
+          marker.setLatLng([lat, lng]);
+        } else {
+          marker = L.marker([lat, lng], { draggable: true }).addTo(map);
+          marker.on('dragend', function (e) {
+            const pos = e.target.getLatLng();
+            latInput.value = pos.lat.toFixed(6);
+            lngInput.value = pos.lng.toFixed(6);
+          });
+        }
+      }
+
+      map.on('click', function (e) {
+        latInput.value = e.latlng.lat.toFixed(6);
+        lngInput.value = e.latlng.lng.toFixed(6);
+        setMarker(e.latlng.lat, e.latlng.lng);
+      });
+
+      if (latInput.value && lngInput.value) {
+        setMarker(parseFloat(latInput.value), parseFloat(lngInput.value));
+      }
+    });
+  </script>
+{% endblock %}

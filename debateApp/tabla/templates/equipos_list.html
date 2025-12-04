@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% block content %}
+<h3>Equipos – {{ torneo.nombre }}</h3>
+<div class="mb-3 d-flex gap-2">
+  <a class="btn btn-primary btn-sm" href="{% url 'equipo_nuevo' torneo.id %}">Nuevo equipo</a>
+  <a class="btn btn-outline-secondary btn-sm" href="{% url 'torneo_tabla' torneo.id %}">Ver tabla</a>
+</div>
+<table class="table table-striped">
+  <thead>
+    <tr>
+      <th>Nombre</th>
+      <th>Swing</th>
+      <th>Puntos</th>
+      <th>Speakers</th>
+      <th>Acciones</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for e in equipos %}
+      <tr>
+        <td>{{ e.nombre }}</td>
+        <td>{% if e.es_swing %}Sí{% else %}No{% endif %}</td>
+        <td>{{ e.puntos }}</td>
+        <td>{{ e.speakers_total }}</td>
+        <td class="d-flex gap-2">
+          <a class="btn btn-sm btn-outline-secondary" href="{% url 'miembros_list' e.id %}">Miembros</a>
+          <a class="btn btn-sm btn-outline-primary" href="{% url 'equipo_editar' e.id %}">Editar</a>
+          <form method="post" action="{% url 'equipo_eliminar' e.id %}">
+            {% csrf_token %}
+            <button class="btn btn-sm btn-outline-danger">Eliminar</button>
+          </form> 
+        </td>
+      </tr>
+    {% empty %}
+      <tr><td colspan="5">Sin equipos.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}
